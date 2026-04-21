@@ -62,12 +62,12 @@ pnpm start -- "dentistas en Madrid" --lang es --country es --force-fallback
 
 ## Programmatic Usage
 
-Once installed as a dependency, you can require the core functions using the package name `map-scraper-js` (as defined in `package.json`).
+Once installed as a dependency, you can import the core functions using the package name `map-scraper-js` (as defined in `package.json`).
 
 ### Basic Example
 
 ```javascript
-const { searchAsync, saveToCsv } = require('map-scraper-js');
+import { searchAsync, saveToCsv } from 'map-scraper-js';
 
 async function run() {
   try {
@@ -106,7 +106,7 @@ run();
 ### Multiple Queries
 
 ```javascript
-const { searchMultipleAsync } = require('map-scraper-js');
+import { searchMultipleAsync } from 'map-scraper-js';
 
 async function runBatch() {
   const queries = ['coffee shops in london', 'gyms in london'];

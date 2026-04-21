@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-const fs = require('node:fs');
-const path = require('node:path');
-const { Command } = require('commander');
-const crawler = require('./src/placesCrawlerV2');
+import fs from 'node:fs';
+import path from 'node:path';
+import { Command } from 'commander';
+import * as crawler from './src/placesCrawlerV2.js';
 
 function readQueriesFromFile(filePath) {
   try {

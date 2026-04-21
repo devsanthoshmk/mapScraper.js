@@ -1,8 +1,7 @@
-const fs = require('node:fs');
-const path = require('node:path');
-const pLimitImport = require('p-limit');
-const pLimit = pLimitImport.default || pLimitImport;
-const fallbackScraper = require('./scraper-fallback');
+import fs from 'node:fs';
+import path from 'node:path';
+import pLimit from 'p-limit';
+import fallbackScraper from './scraper-fallback.js';
 
 const HEADERS = {
   'user-agent':
@@ -323,7 +322,7 @@ function saveToCsv(data, filename = 'data/generated/output.csv') {
   console.log(`Data saved to ${filename}`);
 }
 
-module.exports = {
+export {
   COLUMN_ORDER,
   extractPlace,
   fetchResultsPage,

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Google Maps scraper with concurrent query support",
   "license": "MIT",
-  "type": "commonjs",
+  "type": "module",
   "main": "src/placesCrawlerV2.js",
   "bin": {
     "map-scraper": "./mapScraperX.js"

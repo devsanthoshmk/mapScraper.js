@@ -1,10 +1,10 @@
-const test = require('node:test');
-const assert = require('node:assert/strict');
-const fs = require('node:fs');
-const os = require('node:os');
-const path = require('node:path');
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 
-const {
+import {
   COLUMN_ORDER,
   extractPlace,
   mapFallbackResultsToSchema,
@@ -12,8 +12,8 @@ const {
   searchAsync,
   searchMultipleAsync,
   uniqueByPlaceId
-} = require('../src/placesCrawlerV2');
-const fallbackScraper = require('../src/scraper-fallback');
+} from '../src/placesCrawlerV2.js';
+import fallbackScraper from '../src/scraper-fallback.js';
 
 function makePlace({
   id,
