@@ -21,14 +21,21 @@ function readQueriesFromFile(filePath) {
   }
 }
 
-async function processSingleQuery(query, lang, country, limit) {
+async function processSingleQuery(query, lang, country, limit, forceFallback = false) {
   console.log(`Processing query: '${query}'`);
-  const results = await crawler.searchAsync(query, lang, country, limit);
+  const results = await crawler.searchAsync(query, lang, country, limit, globalThis.fetch, forceFallback);
   console.log(`Found ${results.length} results for '${query}'`);
   return results;
 }
 
-async function processMultipleQueries(queries, lang, country, limitPerQuery, maxConcurrent = 3) {
+async function processMultipleQueries(
+  queries,
+  lang,
+  country,
+  limitPerQuery,
+  maxConcurrent = 3,
+  forceFallback = false
+) {
   const totalQueries = queries.length;
   console.log(`Processing ${totalQueries} queries concurrently (max ${maxConcurrent} at a time)...`);
 
@@ -38,7 +45,9 @@ async function processMultipleQueries(queries, lang, country, limitPerQuery, max
     lang,
     country,
     limitPerQuery,
-    maxConcurrent
+    maxConcurrent,
+    globalThis.fetch,
+    forceFallback
   );
 
   const elapsed = (Date.now() - started) / 1000;
@@ -72,6 +81,7 @@ async function main() {
       }
       return parsed;
     }, 3)
+    .option('--force-fallback', 'Force fallback scraper for manual debugging and blocked-response diagnostics.', false)
     .addHelpText(
       'after',
       `\nExamples:\n  Single query:\n    node mapScraperX.js "restaurants in Miami" --limit 50\n\n  Multiple queries:\n    node mapScraperX.js --queries-file query_example.txt\n\n  Adjust concurrency level:\n    node mapScraperX.js --queries-file query_example.txt --concurrent 5\n`
@@ -95,7 +105,16 @@ async function main() {
 
   if (query) {
     console.log('Mode: Single query');
-    results = await processSingleQuery(query, options.lang, options.country, options.limit);
+    if (options.forceFallback) {
+      console.log('Force fallback enabled: skipping primary parser.');
+    }
+    results = await processSingleQuery(
+      query,
+      options.lang,
+      options.country,
+      options.limit,
+      options.forceFallback
+    );
   } else {
     console.log(`Mode: Multiple queries from file (${options.queriesFile})`);
     const queries = readQueriesFromFile(options.queriesFile);
@@ -108,13 +127,17 @@ async function main() {
     if (options.limit) {
       console.log(`Limit per query: ${options.limit}`);
     }
+    if (options.forceFallback) {
+      console.log('Force fallback enabled: all queries will use fallback scraper.');
+    }
 
     results = await processMultipleQueries(
       queries,
       options.lang,
       options.country,
       options.limit,
-      options.concurrent
+      options.concurrent,
+      options.forceFallback
     );
   }
 

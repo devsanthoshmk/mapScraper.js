@@ -222,3 +222,34 @@ test('searchAsync falls back when pb URL cannot be extracted', async () => {
     fallbackScraper.search = originalFallbackSearch;
   }
 });
+
+test('searchAsync forceFallback skips primary parser and uses fallback directly', async () => {
+  const originalFallbackSearch = fallbackScraper.search;
+  fallbackScraper.search = async () => ({
+    results: [
+      {
+        cid: 'CID-FORCED',
+        title: 'Forced Fallback',
+        category: 'Dentist',
+        address: 'Madrid',
+        completePhoneNumber: '+34 999',
+        url: 'https://forced.example',
+        stars: 4.9,
+        reviews: 12
+      }
+    ]
+  });
+
+  try {
+    const fetchStub = async () => {
+      throw new Error('primary fetch should not be called when forceFallback is true');
+    };
+
+    const rows = await searchAsync('dentistas en madrid', 'es', 'es', 10, fetchStub, true);
+    assert.equal(rows.length, 1);
+    assert.equal(rows[0].id, 'CID-FORCED');
+    assert.equal(rows[0].title, 'Forced Fallback');
+  } finally {
+    fallbackScraper.search = originalFallbackSearch;
+  }
+});

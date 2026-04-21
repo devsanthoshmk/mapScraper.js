@@ -50,6 +50,12 @@ From query file:
 node mapScraperX.js --queries-file query_example.txt --lang en --country us --limit 25 --concurrent 3 --output-file data/multi.csv
 ```
 
+Force fallback mode (manual debugging):
+
+```bash
+node mapScraperX.js "dentistas en Madrid" --lang es --country es --force-fallback
+```
+
 ## CLI Options
 
 | Option | Description | Default |
@@ -61,6 +67,7 @@ node mapScraperX.js --queries-file query_example.txt --lang en --country us --li
 | `--limit <n>` | Max results (single query total, file mode per query) | none |
 | `--output-file <path>` | Output CSV path | `data/output.csv` |
 | `--concurrent <n>` | Max concurrent queries in file mode | `3` |
+| `--force-fallback` | Skip primary parser and force fallback scraper | `false` |
 
 ## Testing
 
@@ -85,6 +92,7 @@ The test suite covers:
 - If the primary flow is blocked (consent wall / captcha / bot-detection style responses),
   the scraper automatically falls back to the secondary parser in
   `src/scraper-fallback.js`.
+- For manual control/debugging, pass `--force-fallback` to use fallback mode directly.
 - Google can change response shape at any time; parsing is defensive and fails gracefully.
 - `reviews` is usually unavailable in this response format and is emitted as empty.
 

@@ -229,9 +229,19 @@ async function fetchResultsPage(fetchImpl, searchUrl, query, start = 0) {
   return places;
 }
 
-async function searchAsync(query, lang = 'en', country = 'us', limit = undefined, fetchImpl = globalThis.fetch) {
+async function searchAsync(
+  query,
+  lang = 'en',
+  country = 'us',
+  limit = undefined,
+  fetchImpl = globalThis.fetch,
+  forceFallback = false
+) {
   if (typeof fetchImpl !== 'function') {
     throw new Error('Global fetch is unavailable. Use Node 20+ or provide fetch implementation.');
+  }
+  if (forceFallback) {
+    return searchWithFallback(query, limit);
   }
 
   const results = [];
@@ -273,11 +283,14 @@ async function searchMultipleAsync(
   country = 'us',
   limit = undefined,
   maxConcurrent = 3,
-  fetchImpl = globalThis.fetch
+  fetchImpl = globalThis.fetch,
+  forceFallback = false
 ) {
   const limiter = pLimit(maxConcurrent);
   const chunks = await Promise.all(
-    queries.map((query) => limiter(() => searchAsync(query, lang, country, limit, fetchImpl)))
+    queries.map((query) =>
+      limiter(() => searchAsync(query, lang, country, limit, fetchImpl, forceFallback))
+    )
   );
   return uniqueByPlaceId(chunks.flat());
 }
