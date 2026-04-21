@@ -18,19 +18,31 @@ Node.js + `pnpm` Google Maps scraper with CSV export, multi-query mode, and fall
 
 ## Installation
 
-You can install this package directly from GitHub:
+You can install this package directly from GitHub to use it as a module in your project:
 
 ```bash
-# Using npm
-npm install https://github.com/devsanthoshmk/mapScraper.js
-
 # Using pnpm
-pnpm add https://github.com/devsanthoshmk/mapScraper.js
+pnpm add github:devsanthoshmk/mapScraper.js#main
+
+# Using npm
+npm install github:devsanthoshmk/mapScraper.js#main
 ```
 
-For local development:
+Once installed, you can also use the CLI via `npx` or `pnpm`:
 
 ```bash
+# Using npx
+npx map-scraper "dentists in madrid"
+
+# Using pnpm
+pnpm map-scraper "dentists in madrid"
+```
+
+For local development and running the CLI from the source:
+
+```bash
+git clone https://github.com/devsanthoshmk/mapScraper.js.git
+cd mapScraper.js
 pnpm install
 ```
 
@@ -56,7 +68,7 @@ pnpm start -- "dentistas en Madrid" --lang es --country es --force-fallback
 
 ## Programmatic Usage
 
-You can use `map-scraper-js` as a module in your own Node.js projects.
+Once installed as a dependency in your project, you can import and use the library's core functions. The package name to use in your `require` statements is `map-scraper-js`.
 
 ### Basic Example
 
@@ -69,6 +81,23 @@ async function run() {
     const results = await searchAsync('dentists in madrid', 'es', 'es', 10);
     
     console.log(`Found ${results.length} results`);
+    
+    // Each result follows this schema:
+    // {
+    //   id: '...',
+    //   url_place: '...',
+    //   title: '...',
+    //   category: '...',
+    //   address: '...',
+    //   phoneNumber: '...',
+    //   completePhoneNumber: '...',
+    //   domain: '...',
+    //   url: '...',
+    //   coor: '...',
+    //   stars: '...',
+    //   reviews: '...',
+    //   source_query: '...'
+    // }
     
     // Save to a custom CSV file
     saveToCsv(results, 'data/generated/dentists_madrid.csv');
