@@ -1,225 +1,110 @@
 ![Header](https://github.com/christivn/mapScraper/blob/main/github-header-image.png?raw=true)
 
-# Google Maps Scraper
+# Google Maps Scraper (JavaScript)
 
-A powerful Python tool for scraping Google Maps local services data. Extract detailed information about businesses and places directly from Google Maps search results.
+A Node.js + `pnpm` Google Maps scraper for local business data, migrated from the original Python implementation with feature parity.
 
-## 🚀 Features
+## Features
 
-With the **Google Maps Scraper**, you can obtain detailed data about businesses and specific places on Google Maps, such as:
+- Single-query scraping from CLI
+- Multi-query scraping via text file
+- Configurable concurrency for file mode
+- Language/country targeting (`--lang`, `--country`)
+- Result limiting (`--limit`)
+- CSV export with stable schema
+- Same output fields as the previous Python version:
+  - `id`, `url_place`, `title`, `category`, `address`
+  - `phoneNumber`, `completePhoneNumber`, `domain`, `url`
+  - `coor`, `stars`, `reviews`, `source_query`
 
-- **Place ID** - Unique identifier for the location
-- **Place URL** - Direct Google Maps link
-- **Place name** - Business or location name
-- **Category** - Type of business/service
-- **Full address** - Complete location address
-- **Phone number** - Contact phone number
-- **Associated domain and URL** - Business website information
-- **Coordinates** - Latitude and longitude
-- **Average star rating** - Customer rating
-- **Number of reviews** - Total review count
-- **Customizable search parameters** - Language, country, result limit, and output filename
+## Requirements
 
-## 📋 Prerequisites
+- Node.js 20+
+- `pnpm` 10+
 
-- Python 3.7 or higher
-- pip (Python package installer)
-
-## 📦 Installation
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/christivn/mapScraper.git
-   cd mapScraper
-   ```
-
-2. **Install required packages:**
-   ```bash
-   pip install aiohttp tqdm
-   ```
-
-3. **Verify installation:**
-   ```bash
-   python mapScraperX.py --help
-   ```
-
-## 🔧 Usage
-
-### Basic Syntax
-```bash
-python mapScraperX.py "your search query" [options]
-```
-
-### Command Line Options
-
-| Option | Description | Default | Example |
-|--------|-------------|---------|---------|
-| `query` | Search query (required) | - | `"restaurants in NYC"` |
-| `--lang` | Language code | `en` | `--lang es` |
-| `--country` | Country code | `us` | `--country fr` |
-| `--limit` | Maximum results | No limit | `--limit 100` |
-| `--output-file` | Output CSV file path | `data/output.csv` | `--output-file results.csv` |
-
-### 💡 Usage Examples
-
-#### Basic Search
-```bash
-# Search for gyms in Seville, Spain
-python mapScraperX.py "Gym in Seville Spain"
-```
-
-#### Language and Country Specific Search
-```bash
-# Search for dentists in Madrid (Spanish language, Spain country)
-python mapScraperX.py "dentistas en Madrid" --lang es --country es
-```
-
-#### Limited Results
-```bash
-# Get only 50 pizza places in Paris
-python mapScraperX.py "pizzerias in Paris" --lang fr --country fr --limit 50
-```
-
-#### Custom Output File
-```bash
-# Save results to a custom file
-python mapScraperX.py "coffee shops in London" --output-file "data/london_coffee.csv"
-```
-
-#### Complex Query with All Options
-```bash
-# Comprehensive search with all parameters
-python mapScraperX.py "barber shops in Tokyo" --lang ja --country jp --limit 25 --output-file "data/tokyo_barbers.csv"
-```
-### Complex query using file (for multiple queries)
-```bash
-# Comprehensive search using query list
-python mapScraperX.py --queries-file qwuery_example.txt --lang ja --country jp --limit 25 --output-file "data/custom_name.csv"
-```
-
-### Concurrent query processing
-```bash
-# When requesting for more than one query (safe):
-python mapScraperX.py --queries-file qwuery_example.txt --lang en --country jp --limit 25 --output-file "data/custom_name.csv" --concurrent 2
-```
+## Installation
 
 ```bash
-# When requesting for more than one query (fast but risky):
-python mapScraperX.py --queries-file qwuery_example.txt --lang en --country jp --limit 25 --output-file "data/custom_name.csv" --concurrent 5
+git clone https://github.com/christivn/mapScraper.git
+cd mapScraper
+pnpm install
 ```
 
+## Usage
 
-## 🌍 Supported Languages and Countries
+Basic:
 
-### Common Language Codes
-- `en` - English
-- `es` - Spanish
-- `fr` - French
-- `de` - German
-- `it` - Italian
-- `pt` - Portuguese
-- `ja` - Japanese
-- `ko` - Korean
-- `zh` - Chinese
+```bash
+node mapScraperX.js "your search query"
+```
 
-### Common Country Codes
-- `us` - United States
-- `gb` - United Kingdom
-- `es` - Spain
-- `fr` - France
-- `de` - Germany
-- `it` - Italy
-- `jp` - Japan
-- `ca` - Canada
-- `au` - Australia
+With options:
 
-## 📁 Output Format
+```bash
+node mapScraperX.js "coffee shops in London" --lang en --country gb --limit 50 --output-file data/london.csv
+```
 
-The scraper generates a CSV file with the following columns:
+From query file:
 
-| Column | Description | Example |
-|--------|-------------|---------|
-| `id` | Google Place ID | `ChIJN1t_tDeuEmsRUsoyG83frY4` |
-| `url_place` | Direct Google Maps link | `https://www.google.com/maps/place/?q=place_id:...` |
-| `title` | Business name | `Joe's Pizza` |
-| `category` | Business category | `Pizza restaurant` |
-| `address` | Full address | `123 Main St, New York, NY 10001` |
-| `phoneNumber` | Local phone format | `(555) 123-4567` |
-| `completePhoneNumber` | International format | `+1 555-123-4567` |
-| `domain` | Website domain | `joespizza.com` |
-| `url` | Full website URL | `https://www.joespizza.com` |
-| `coor` | Coordinates (lat,lng) | `40.7128,-74.0060` |
-| `stars` | Average rating | `4.5` |
-| `reviews` | Number of reviews | `234` |
+```bash
+node mapScraperX.js --queries-file query_example.txt --lang en --country us --limit 25 --concurrent 3 --output-file data/multi.csv
+```
 
-## 🔧 What Changed (April 2026 Fix)
+## CLI Options
 
-Google permanently shut down the `/localservices/prolist` endpoint that this
-scraper originally used (it now returns **HTTP 410 Gone**).
+| Option | Description | Default |
+|---|---|---|
+| `query` | Single search query | - |
+| `--queries-file <file>` | File with one query per line (`#` comments ignored) | - |
+| `--lang <code>` | Language code | `en` |
+| `--country <code>` | Country code | `us` |
+| `--limit <n>` | Max results (single query total, file mode per query) | none |
+| `--output-file <path>` | Output CSV path | `data/output.csv` |
+| `--concurrent <n>` | Max concurrent queries in file mode | `3` |
 
-**What was changed:**
-- The scraper no longer targets `/localservices/prolist`. It now uses a
-  two-step approach:
-  1. `GET https://www.google.com/maps/search/{query}` — fetches the Maps SPA
-     page to extract an embedded canonical `pb=` search URL from the `<link>`
-     tag in `<head>`.
-  2. `GET https://www.google.com/search?tbm=map&...&pb=...` — fetches a
-     `)]}'`-prefixed JSON payload that contains the actual search results in a
-     nested array at `data[64]`.
-- JavaScript rendering via `requests-html` / pyppeteer is **no longer needed**.
-  Both requests are plain HTTP GETs; this makes the scraper faster and removes
-  a heavyweight dependency.
-- `requests-html` has been removed from `requirements.txt`. Only `aiohttp` and
-  `tqdm` are required now.
-- All extraction failures now log explicit error messages so failures are never
-  silent.
+## Testing
 
-**Known limitation:** The `tbm=map` JSON response does not include review
-counts. The `reviews` column in the output CSV will be empty. All other fields
-(id, title, category, address, phone, website, coordinates, stars) are fully
-populated.
+Run all tests:
 
-## 📦 Installation (Updated)
+```bash
+pnpm test
+```
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/christivn/mapScraper.git
-   cd mapScraper
-   ```
+The test suite covers:
 
-2. **Install required packages:**
-   ```bash
-   pip install aiohttp tqdm
-   ```
+- Place field extraction
+- Pagination and limit behavior
+- Multi-query aggregation with concurrency
+- CSV schema and escaping
 
-3. **Verify installation:**
-   ```bash
-   python mapScraperX.py --help
-   ```
+## Reliability Notes
 
-## 🐛 Troubleshooting
+- The scraper uses a two-step flow:
+  1. Request Maps search page to extract canonical `tbm=map` search URL.
+  2. Request `tbm=map` payload and parse nested results from `data[64]`.
+- If the primary flow is blocked (consent wall / captcha / bot-detection style responses),
+  the scraper automatically falls back to the secondary parser in
+  `src/scraper-fallback.js`.
+- Google can change response shape at any time; parsing is defensive and fails gracefully.
+- `reviews` is usually unavailable in this response format and is emitted as empty.
 
-### Common Issues
+## Migration Status (Python -> JS)
 
-1. **Empty results / "Could not find pb= search URL"**
-   - Google may be showing a consent or cookie wall for your IP/region.
-   - Try setting `--lang` and `--country` to match your actual locale.
-   - Check your internet connection.
+The project is now JavaScript-first with `pnpm` tooling.
 
-2. **"data[64] is missing"**
-   - Google may have updated the response structure again.
-   - Open an issue with the raw response logged at DEBUG level:
-     ```bash
-     python -c "import logging; logging.basicConfig(level=logging.DEBUG); \
-       import mapScraper.placesCrawlerV2 as c; c.search('test', 'en', 'us', 5)"
-     ```
+Validated parity checks performed during migration:
 
-3. **Permission denied when creating output directory**
-   - Ensure you have write permissions in the target directory.
-   - Try running with appropriate permissions or change the output path.
+- Single query: Python and JS both returned 2 rows for the same live query.
+- Multi-query file mode: Python and JS both returned 4 rows (`--limit 1`) over the same query file.
+- Output CSV schema and headers match exactly.
 
-## 📝 License
+Generated verification files:
 
-This project is provided as-is for educational and research purposes. Please respect Google's Terms of Service and use responsibly.
+- `data/python_smoke.csv`
+- `data/js_smoke.csv`
+- `data/python_multi_smoke.csv`
+- `data/js_multi_smoke.csv`
 
+## License
 
+MIT

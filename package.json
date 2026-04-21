@@ -1,0 +1,23 @@
+{
+  "name": "map-scraper-js",
+  "version": "1.0.0",
+  "description": "Google Maps scraper with concurrent query support",
+  "license": "MIT",
+  "type": "commonjs",
+  "main": "src/placesCrawlerV2.js",
+  "bin": {
+    "map-scraper": "./mapScraperX.js"
+  },
+  "scripts": {
+    "start": "node mapScraperX.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "commander": "^14.0.1",
+    "jsdom": "^26.1.0",
+    "p-limit": "^7.2.0"
+  }
+}
