@@ -295,7 +295,7 @@ async function searchMultipleAsync(
   return uniqueByPlaceId(chunks.flat());
 }
 
-function saveToCsv(data, filename = 'data/output.csv') {
+function saveToCsv(data, filename = 'data/generated/output.csv') {
   if (!Array.isArray(data) || data.length === 0) {
     console.log('No data to save.');
     return;

@@ -41,13 +41,13 @@ node mapScraperX.js "your search query"
 With options:
 
 ```bash
-node mapScraperX.js "coffee shops in London" --lang en --country gb --limit 50 --output-file data/london.csv
+node mapScraperX.js "coffee shops in London" --lang en --country gb --limit 50 --output-file data/generated/london.csv
 ```
 
 From query file:
 
 ```bash
-node mapScraperX.js --queries-file query_example.txt --lang en --country us --limit 25 --concurrent 3 --output-file data/multi.csv
+node mapScraperX.js --queries-file query_example.txt --lang en --country us --limit 25 --concurrent 3 --output-file data/generated/multi.csv
 ```
 
 Force fallback mode (manual debugging):
@@ -65,9 +65,15 @@ node mapScraperX.js "dentistas en Madrid" --lang es --country es --force-fallbac
 | `--lang <code>` | Language code | `en` |
 | `--country <code>` | Country code | `us` |
 | `--limit <n>` | Max results (single query total, file mode per query) | none |
-| `--output-file <path>` | Output CSV path | `data/output.csv` |
+| `--output-file <path>` | Output CSV path | `data/generated/output.csv` |
 | `--concurrent <n>` | Max concurrent queries in file mode | `3` |
 | `--force-fallback` | Skip primary parser and force fallback scraper | `false` |
+
+## Output Layout
+
+- Tracked sample output: `data/samples/output.sample.csv`
+- Runtime/generated outputs: `data/generated/` (gitignored)
+- Optional debug/verification outputs: `artifacts/` (gitignored)
 
 ## Testing
 
@@ -106,12 +112,9 @@ Validated parity checks performed during migration:
 - Multi-query file mode: Python and JS both returned 4 rows (`--limit 1`) over the same query file.
 - Output CSV schema and headers match exactly.
 
-Generated verification files:
+Only one sample CSV is tracked in Git for reference:
 
-- `data/python_smoke.csv`
-- `data/js_smoke.csv`
-- `data/python_multi_smoke.csv`
-- `data/js_multi_smoke.csv`
+- `data/samples/output.sample.csv`
 
 ## License
 

@@ -73,7 +73,7 @@ async function main() {
       }
       return parsed;
     })
-    .option('--output-file <path>', 'Output CSV file path.', 'data/output.csv')
+    .option('--output-file <path>', 'Output CSV file path.', 'data/generated/output.csv')
     .option('--concurrent <number>', 'Max concurrent queries (default: 3, recommended: 3-5)', (value) => {
       const parsed = Number.parseInt(value, 10);
       if (Number.isNaN(parsed) || parsed <= 0) {

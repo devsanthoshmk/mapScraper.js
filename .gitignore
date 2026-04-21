@@ -158,6 +158,9 @@ cython_debug/
 node_modules/
 .pnpm-store/
 artifacts/
+data/generated/
+data/output*.csv
+!data/samples/output.sample.csv
 
 # PyCharm
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
