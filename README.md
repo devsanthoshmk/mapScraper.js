@@ -18,7 +18,19 @@ Node.js + `pnpm` Google Maps scraper with CSV export, multi-query mode, and fall
 
 ## Installation
 
-You can install this package directly from GitHub to use it as a module in your project:
+### 1. For CLI Usage (Standalone)
+
+Clone the repository and install dependencies to run the scraper directly from your terminal:
+
+```bash
+git clone https://github.com/devsanthoshmk/mapScraper.js.git
+cd mapScraper.js
+pnpm install
+```
+
+### 2. For Programmatic Usage (As a Dependency)
+
+If you want to use the scraping logic in your own Node.js project, add it via `npm` or `pnpm` directly from GitHub:
 
 ```bash
 # Using pnpm
@@ -28,25 +40,7 @@ pnpm add github:devsanthoshmk/mapScraper.js#main
 npm install github:devsanthoshmk/mapScraper.js#main
 ```
 
-Once installed, you can also use the CLI via `npx` or `pnpm`:
-
-```bash
-# Using npx
-npx map-scraper "dentists in madrid"
-
-# Using pnpm
-pnpm map-scraper "dentists in madrid"
-```
-
-For local development and running the CLI from the source:
-
-```bash
-git clone https://github.com/devsanthoshmk/mapScraper.js.git
-cd mapScraper.js
-pnpm install
-```
-
-## Quick Start
+## Quick Start (CLI)
 
 Run one query:
 
@@ -68,7 +62,7 @@ pnpm start -- "dentistas en Madrid" --lang es --country es --force-fallback
 
 ## Programmatic Usage
 
-Once installed as a dependency in your project, you can import and use the library's core functions. The package name to use in your `require` statements is `map-scraper-js`.
+Once installed as a dependency, you can require the core functions using the package name `map-scraper-js` (as defined in `package.json`).
 
 ### Basic Example
 
@@ -141,14 +135,15 @@ runBatch();
 - `data`: (Array<Object>) The results array.
 - `filename`: (String) Output path (default: `data/generated/output.csv`).
 
-## CLI Usage
+## CLI Advanced Usage
+
+If you are running from the source (cloned repo):
 
 ```bash
 node mapScraperX.js [query] [options]
 ```
 
 Rules:
-
 - Provide either a positional `query` or `--queries-file`.
 - Do not provide both together.
 
@@ -180,7 +175,6 @@ node mapScraperX.js "dentistas en Madrid" --lang es --country es --force-fallbac
 - Debug/verification artifacts: `artifacts/` (gitignored)
 
 CSV schema:
-
 `id,url_place,title,category,address,phoneNumber,completePhoneNumber,domain,url,coor,stars,reviews,source_query`
 
 ## Project Structure
@@ -198,39 +192,15 @@ data/generated/             Generated outputs (ignored)
 ## Testing
 
 Run full test suite:
-
 ```bash
 pnpm test
 ```
-
-Run a single test file:
-
-```bash
-node --test tests/crawler.test.js
-```
-
-Run a specific test by name:
-
-```bash
-node --test --test-name-pattern="forceFallback" tests/crawler.test.js
-```
-
-Current tests cover:
-
-- field extraction mapping
-- pagination and limits
-- multi-query aggregation
-- CSV writing behavior
-- uniqueness by place ID
-- automatic fallback trigger
-- forced fallback mode
 
 ## Reliability Notes
 
 - Primary flow parses Maps payload from the `tbm=map` endpoint.
 - If blocked by consent/captcha/bot-detection style responses, fallback path is used.
 - `--force-fallback` is available for manual control during debugging.
-- Response formats can change over time; parser behavior is defensive.
 
 ## License
 
