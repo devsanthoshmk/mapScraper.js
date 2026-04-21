@@ -2,119 +2,206 @@
 
 # Google Maps Scraper (JavaScript)
 
-A Node.js + `pnpm` Google Maps scraper for local business data, migrated from the original Python implementation with feature parity.
+Node.js + `pnpm` Google Maps scraper with CSV export, multi-query mode, and fallback scraping support.
 
-## Features
+## What This Project Does
 
-- Single-query scraping from CLI
-- Multi-query scraping via text file
-- Configurable concurrency for file mode
-- Language/country targeting (`--lang`, `--country`)
-- Result limiting (`--limit`)
-- CSV export with stable schema
-- Same output fields as the previous Python version:
-  - `id`, `url_place`, `title`, `category`, `address`
-  - `phoneNumber`, `completePhoneNumber`, `domain`, `url`
-  - `coor`, `stars`, `reviews`, `source_query`
+- Scrapes business listings from Google Maps for a query.
+- Supports single query and file-based batch queries.
+- Exports normalized CSV output.
+- Falls back to an alternate scraper path when the primary parser is blocked or unstable.
 
 ## Requirements
 
-- Node.js 20+
-- `pnpm` 10+
+- Node.js `20+`
+- `pnpm` `10+`
 
 ## Installation
 
+You can install this package directly from GitHub:
+
 ```bash
-git clone https://github.com/christivn/mapScraper.git
-cd mapScraper
+# Using npm
+npm install https://github.com/devsanthoshmk/mapScraper.js
+
+# Using pnpm
+pnpm add https://github.com/devsanthoshmk/mapScraper.js
+```
+
+For local development:
+
+```bash
 pnpm install
 ```
 
-## Usage
+## Quick Start
 
-Basic:
-
-```bash
-node mapScraperX.js "your search query"
-```
-
-With options:
+Run one query:
 
 ```bash
-node mapScraperX.js "coffee shops in London" --lang en --country gb --limit 50 --output-file data/generated/london.csv
+pnpm start -- "dentists in madrid"
 ```
 
-From query file:
+Run from query file:
 
 ```bash
-node mapScraperX.js --queries-file query_example.txt --lang en --country us --limit 25 --concurrent 3 --output-file data/generated/multi.csv
+pnpm start -- --queries-file query_example.txt --concurrent 3
 ```
 
-Force fallback mode (manual debugging):
+Force fallback mode for debugging:
 
 ```bash
-node mapScraperX.js "dentistas en Madrid" --lang es --country es --force-fallback
+pnpm start -- "dentistas en Madrid" --lang es --country es --force-fallback
 ```
 
-## CLI Options
+## Programmatic Usage
+
+You can use `map-scraper-js` as a module in your own Node.js projects.
+
+### Basic Example
+
+```javascript
+const { searchAsync, saveToCsv } = require('map-scraper-js');
+
+async function run() {
+  try {
+    // Search for a single query
+    const results = await searchAsync('dentists in madrid', 'es', 'es', 10);
+    
+    console.log(`Found ${results.length} results`);
+    
+    // Save to a custom CSV file
+    saveToCsv(results, 'data/generated/dentists_madrid.csv');
+  } catch (error) {
+    console.error('Scraping failed:', error);
+  }
+}
+
+run();
+```
+
+### Multiple Queries
+
+```javascript
+const { searchMultipleAsync } = require('map-scraper-js');
+
+async function runBatch() {
+  const queries = ['coffee shops in london', 'gyms in london'];
+  const results = await searchMultipleAsync(queries, 'en', 'gb', 50, 3);
+  
+  console.log(`Total unique results across queries: ${results.length}`);
+}
+
+runBatch();
+```
+
+### API Reference
+
+#### `searchAsync(query, lang, country, limit, fetchImpl, forceFallback)`
+- `query`: (String) The search term.
+- `lang`: (String) Language code (default: `en`).
+- `country`: (String) Country code (default: `us`).
+- `limit`: (Number) Maximum number of results to fetch.
+- `forceFallback`: (Boolean) If true, skips the primary parser (default: `false`).
+
+#### `searchMultipleAsync(queries, lang, country, limit, maxConcurrent, fetchImpl, forceFallback)`
+- `queries`: (Array<String>) List of search terms.
+- `maxConcurrent`: (Number) Maximum number of queries to run in parallel (default: `3`).
+
+#### `saveToCsv(data, filename)`
+- `data`: (Array<Object>) The results array.
+- `filename`: (String) Output path (default: `data/generated/output.csv`).
+
+## CLI Usage
+
+```bash
+node mapScraperX.js [query] [options]
+```
+
+Rules:
+
+- Provide either a positional `query` or `--queries-file`.
+- Do not provide both together.
+
+Options:
 
 | Option | Description | Default |
 |---|---|---|
 | `query` | Single search query | - |
-| `--queries-file <file>` | File with one query per line (`#` comments ignored) | - |
+| `--queries-file <file>` | Text file with one query per line (`#` comment lines ignored) | - |
 | `--lang <code>` | Language code | `en` |
 | `--country <code>` | Country code | `us` |
-| `--limit <n>` | Max results (single query total, file mode per query) | none |
-| `--output-file <path>` | Output CSV path | `data/generated/output.csv` |
+| `--limit <n>` | Max results (single mode = total, file mode = per query) | none |
 | `--concurrent <n>` | Max concurrent queries in file mode | `3` |
-| `--force-fallback` | Skip primary parser and force fallback scraper | `false` |
+| `--output-file <path>` | Output CSV path | `data/generated/output.csv` |
+| `--force-fallback` | Skip primary parser and use fallback module directly | `false` |
 
-## Output Layout
+Examples:
+
+```bash
+node mapScraperX.js "coffee shops in london" --limit 30
+node mapScraperX.js --queries-file query_example.txt --limit 10 --concurrent 5
+node mapScraperX.js "dentistas en Madrid" --lang es --country es --force-fallback
+```
+
+## Output Files
 
 - Tracked sample output: `data/samples/output.sample.csv`
-- Runtime/generated outputs: `data/generated/` (gitignored)
-- Optional debug/verification outputs: `artifacts/` (gitignored)
+- Runtime output directory: `data/generated/` (gitignored)
+- Debug/verification artifacts: `artifacts/` (gitignored)
+
+CSV schema:
+
+`id,url_place,title,category,address,phoneNumber,completePhoneNumber,domain,url,coor,stars,reviews,source_query`
+
+## Project Structure
+
+```text
+mapScraperX.js              CLI entrypoint
+src/placesCrawlerV2.js      Primary scraping/parsing + CSV export
+src/scraper-fallback.js     Fallback scraper path
+tests/crawler.test.js       Node test suite
+query_example.txt           Example input queries
+data/samples/               Tracked sample output
+data/generated/             Generated outputs (ignored)
+```
 
 ## Testing
 
-Run all tests:
+Run full test suite:
 
 ```bash
 pnpm test
 ```
 
-The test suite covers:
+Run a single test file:
 
-- Place field extraction
-- Pagination and limit behavior
-- Multi-query aggregation with concurrency
-- CSV schema and escaping
+```bash
+node --test tests/crawler.test.js
+```
+
+Run a specific test by name:
+
+```bash
+node --test --test-name-pattern="forceFallback" tests/crawler.test.js
+```
+
+Current tests cover:
+
+- field extraction mapping
+- pagination and limits
+- multi-query aggregation
+- CSV writing behavior
+- uniqueness by place ID
+- automatic fallback trigger
+- forced fallback mode
 
 ## Reliability Notes
 
-- The scraper uses a two-step flow:
-  1. Request Maps search page to extract canonical `tbm=map` search URL.
-  2. Request `tbm=map` payload and parse nested results from `data[64]`.
-- If the primary flow is blocked (consent wall / captcha / bot-detection style responses),
-  the scraper automatically falls back to the secondary parser in
-  `src/scraper-fallback.js`.
-- For manual control/debugging, pass `--force-fallback` to use fallback mode directly.
-- Google can change response shape at any time; parsing is defensive and fails gracefully.
-- `reviews` is usually unavailable in this response format and is emitted as empty.
-
-## Migration Status (Python -> JS)
-
-The project is now JavaScript-first with `pnpm` tooling.
-
-Validated parity checks performed during migration:
-
-- Single query: Python and JS both returned 2 rows for the same live query.
-- Multi-query file mode: Python and JS both returned 4 rows (`--limit 1`) over the same query file.
-- Output CSV schema and headers match exactly.
-
-Only one sample CSV is tracked in Git for reference:
-
-- `data/samples/output.sample.csv`
+- Primary flow parses Maps payload from the `tbm=map` endpoint.
+- If blocked by consent/captcha/bot-detection style responses, fallback path is used.
+- `--force-fallback` is available for manual control during debugging.
+- Response formats can change over time; parser behavior is defensive.
 
 ## License
 
